@@ -41,9 +41,10 @@ public:
     virtual void pop() =0;
     virtual   bool isEmpty() =0;
     virtual  void delall() =0;
-    virtual size_t lendgh()=0;
+    virtual size_t lendgh() const=0;
     template <class U> friend std::ostream& operator << (std::ostream &stream, lst<U> &t);
     template <class U> friend std::istream& operator >> (std::istream &stream, lst<U> &t);
+    protected:
     virtual  void print() =0;
     virtual void skan()=0;
 };
@@ -89,7 +90,7 @@ public:
         return !head;
     }
     void delall();
-    size_t lendgh()
+    size_t lendgh() const
     {
         return ld;
     }
@@ -221,7 +222,7 @@ public:
         return !head;
     }
     void delall();
-    size_t lendgh()
+    size_t lendgh() const
     {
         return ld;
     }
