@@ -44,7 +44,104 @@ public:
     virtual size_t lendgh() const=0;
     template <class U> friend std::ostream& operator << (std::ostream &stream, lst<U> &t);
     template <class U> friend std::istream& operator >> (std::istream &stream, lst<U> &t);
-    protected:
+    class Iterator
+    {
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+
+        Iterator(element<T>* p = nullptr): p(p) {}
+
+        reference operator*()const
+        {
+            return p->a;
+        }
+        pointer operator->() const
+        {
+            return &(p->a);
+        }
+
+        Iterator& operator ++()
+        {
+            p=p->prev;
+            return *this;
+        }
+        Iterator operator ++(int)
+        {
+            Iterator t = *this;
+            ++(*this);
+            return t;
+        }
+
+        bool operator == (const Iterator& c) const
+        {
+            return p==c.p;
+        }
+        bool operator != (const Iterator& c) const
+        {
+            return p!=c.p;
+        }
+
+    private:
+        element<T>* p;
+
+    };
+
+    class Const_iterator
+    {
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = std::ptrdiff_t;
+        using value_type = const T;
+        using pointer = const T*;
+        using reference = const T&;
+
+        Const_iterator(element<T>* p = nullptr) : p(p) {}
+        Const_iterator(const Iterator& i) : p(i.p) {}
+
+        reference operator*() const
+        {
+            return p->a;
+        }
+        pointer operator->() const
+        {
+            return &(p->a);
+        }
+
+        Const_iterator& operator++()
+        {
+            p = p->prev;
+            return *this;
+        }
+        Const_iterator operator++(int)
+        {
+            Const_iterator t = *this;
+            ++(*this);
+            return t;
+        }
+
+        bool operator==(const Const_iterator& other) const
+        {
+            return p == other.p;
+        }
+        bool operator!=(const Const_iterator& other) const
+        {
+            return p != other.p;
+        }
+
+    private:
+        element<T>* p;
+    };
+
+    virtual Iterator end() = 0;
+    virtual Iterator begin() = 0;
+    virtual Const_iterator cend() const = 0;
+    virtual Const_iterator cbegin() const = 0;
+
+protected:
     virtual  void print() =0;
     virtual void skan()=0;
 };
@@ -96,6 +193,23 @@ public:
     }
     void print();
     steck<T>& operator = (const steck<T>& s);
+    steck<T>& operator = (steck<T>&& s);
+    typename lst<T>::Iterator begin() override
+    {
+        return typename lst<T>::Iterator(this->head);
+    }
+    typename lst<T>::Iterator end() override
+    {
+        return typename lst<T>::Iterator(nullptr);
+    }
+    typename lst<T>::Const_iterator cbegin() const override
+    {
+        return typename lst<T>::Const_iterator(this->head);
+    }
+    typename lst<T>::Const_iterator cend() const override
+    {
+        return typename lst<T>::Const_iterator(nullptr);
+    }
 private:
     element <T>* head;
     size_t ld;
@@ -125,14 +239,14 @@ template <class T> steck<T> ::  steck(steck&& s)
     s.head=nullptr;
 }
 template <class T> steck<T> ::  ~steck ()
+{
+    while(head)
     {
-        while(head)
-        {
-            element<T>* h2=head;
-            head=head->prev;
-            delete h2;
-        }
+        element<T>* h2=head;
+        head=head->prev;
+        delete h2;
     }
+}
 template <class T> steck<T>&  steck<T>:: operator = (const steck<T>& s)
 {
     delall();
@@ -151,6 +265,14 @@ template <class T> steck<T>&  steck<T>:: operator = (const steck<T>& s)
 
     }
     return *this;
+}
+template <class T> steck<T>&  steck<T>:: operator = ( steck<T>&& s)
+{
+    delall();
+    head=nullptr;
+    ld=s.ld;
+    head=s.head;
+    s.head=nullptr;
 }
 template <class T> void steck<T>:: pop()
 {
@@ -227,7 +349,24 @@ public:
         return ld;
     }
     och& operator = (const och& q);
+    och& operator = ( och&& q);
     void print();
+    typename lst<T>::Iterator begin() override
+    {
+        return typename lst<T>::Iterator(this->head);
+    }
+    typename lst<T>::Iterator end() override
+    {
+        return typename lst<T>::Iterator(nullptr);
+    }
+    typename lst<T>::Const_iterator cbegin() const override
+    {
+        return typename lst<T>::Const_iterator(this->head);
+    }
+    typename lst<T>::Const_iterator cend() const override
+    {
+        return typename lst<T>::Const_iterator(nullptr);
+    }
 private:
     element <T>* head;
     element <T>* tail;
@@ -288,6 +427,15 @@ template <class T> och<T>& och<T>::operator = (const och<T>& q)
     }
     return *this;
 }
+template <class T> och<T>& och<T>::operator = ( och&& q)
+{
+    delall();
+    head=q.head;
+    tail=q.tail;
+    ld=q.ld;
+    q.head=nullptr;
+    q.tail=nullptr;
+}
 template <class T> void och<T>:: pop()
 {
     if(!isEmpty())
@@ -342,11 +490,11 @@ template <class T> void och<T>:: print()
     }
 }
 template <class T> void och<T>:: delall()
+{
+    while(head)
     {
-        while(head)
-        {
-            ld--;
-            pop();
-        }
+        ld--;
+        pop();
     }
+}
 #endif
