@@ -273,6 +273,7 @@ template <class T> steck<T>&  steck<T>:: operator = ( steck<T>&& s)
     ld=s.ld;
     head=s.head;
     s.head=nullptr;
+    return *this;
 }
 template <class T> void steck<T>:: pop()
 {
@@ -435,6 +436,7 @@ template <class T> och<T>& och<T>::operator = ( och&& q)
     ld=q.ld;
     q.head=nullptr;
     q.tail=nullptr;
+    return *this;
 }
 template <class T> void och<T>:: pop()
 {
